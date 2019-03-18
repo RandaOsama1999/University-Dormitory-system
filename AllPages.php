@@ -1,5 +1,6 @@
 <?php
 include_once "classUser.php";
+include_once "classDatabase.php";
 session_start();
 if (!isset($_SESSION['email'])) {
     header('location: page-login.php');
@@ -9,20 +10,12 @@ if (isset($_GET['Logout'])) {
     unset($_SESSION['email']);
     header("location: page-login.php");
 }
-            $servername = "localhost";
-            $username = "root";
-            $password = "";
-            
-            // Create connection
-            $conn = new mysqli($servername, $username, $password);
-            // Check connection
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
+$connection = new DB();
+$conn = $connection->connect();
             $conn->query("SET NAMES 'utf8'");
             $email = $_SESSION['email']; 
 
-            $sql = "SELECT * FROM alazharuni.user WHERE Email='$email'";
+            $sql = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0";
             $resultQuery = $conn->query($sql);
             while($row = $resultQuery->fetch_assoc()){
                 if($row==true)
@@ -49,7 +42,6 @@ if (isset($_GET['Logout'])) {
                         $obj->Mobile=$_POST['MobileNumber'];
                         $obj->Home=$_POST['Home'];
                         $obj->Address=$_POST['city'];
-                        $obj->Email=$_POST['PersonalMail'];
                         $obj->Password=$_POST['Pass1'];
                         $obj->national_ID=$_POST['NationaID'];
         return Users::update($obj);
@@ -170,21 +162,12 @@ li button.active {
                         
                                 <?php
                                             
-                                    $servername = "localhost";
-                                    $username = "root";
-                                    $password = "";
-                                    
-                                    // Create connection
-                                    $conn = new mysqli($servername, $username, $password);
-                                    // Check connection
-                                    if ($conn->connect_error) {
-                                        die("Connection failed: " . $conn->connect_error);
-                                    }
-
+                                            $connection = new DB();
+                                            $conn = $connection->connect();
                                     $conn->query("SET NAMES 'utf8'");
 
                                     $email = $_SESSION['email']; 
-                                    $sql = "SELECT * FROM alazharuni.user WHERE Email='$email'";
+                                    $sql = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0";
                                     $result = $conn->query($sql);
                                         while($row = $result->fetch_assoc()){
                                             if($row==true)
@@ -192,13 +175,13 @@ li button.active {
                                                 $Name=$row["FirstName"];
                                                 $FName=$row["FamilyName"];
                                                 $usertype_ID=$row['usertype_ID'];
-                                                $sqltwo = "SELECT * FROM alazharuni.usertypelinks WHERE userType_ID='$usertype_ID'";
+                                                $sqltwo = "SELECT * FROM usertypelinks WHERE userType_ID='$usertype_ID' AND IsDeleted=0";
                                                 $resulttwo = $conn->query($sqltwo);
                                                     while($rowtwo = $resulttwo->fetch_assoc()){
                                                         if($rowtwo==true)
                                                         {
                                                             $links_ID=$rowtwo['links_ID'];
-                                                            $sqlt = "SELECT * FROM alazharuni.links WHERE ID='$links_ID'";
+                                                            $sqlt = "SELECT * FROM links WHERE ID='$links_ID' AND IsDeleted=0";
                                                             $resultt = $conn->query($sqlt);
                                                                 while($rowt = $resultt->fetch_assoc()){
                                                                     if($rowt==true)
@@ -233,18 +216,18 @@ li button.active {
                 <br>
                                 <h2 style='text-align:center; color: rgba(45, 65, 21)'> عدل بياناتك</h2>
                                 <div class="form-validation">
-                                <form class="form-valide" method="post" id="form" name="myForm">
-                                    <div class="form-group">
+                                <form class="form-valide" method="post" id="form" name="myForm" onsubmit="return validateForm()">
+                                <div class="form-group">
                                         <label for="user" class="label" style="margin-left: 93%;font-size:20px;color:black;">  اسمك<span class="text-danger">*</label>
-                                        <input id="user" type="text" name="firstname" class="form-control" style="direction:RTL;" value='<?php echo $FirstName; ?>' required  >
+                                        <input id="user" type="text" name="firstname" class="form-control" style="direction:RTL;" pattern="[أ-ي]{1,30}" title="اكتب باللغه العربيه" onkeypress="return CheckArabicCharactersOnly(event);" value='<?php echo $FirstName; ?>' required  >
                                     </div>
                                     <div class="form-group">
                                         <label for="user" class="label" style="margin-left: 91%;font-size:20px;color:black;"> اسم الاب<span class="text-danger">*</label>
-                                        <input id="user" type="text" name="lastname" class="form-control" style="direction:RTL;" value='<?php echo $LastName; ?>' required  >
+                                        <input id="user" type="text" name="lastname" class="form-control" style="direction:RTL;" pattern="[أ-ي]{1,30}" title="اكتب باللغه العربيه" onkeypress="return CheckArabicCharactersOnly(event);" value='<?php echo $LastName; ?>' required  >
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 90%;font-size:20px;color:black;" >اسم العائلة<span class="text-danger">*</label>
-                                        <input id="user" type="text"  name="familyname" class="form-control" style="direction:RTL;" value='<?php echo $FamilyName; ?>' required  >
+                                        <input id="user" type="text"  name="familyname" class="form-control" style="direction:RTL;" pattern="[أ-ي]{1,30}" title="اكتب باللغه العربيه" onkeypress="return CheckArabicCharactersOnly(event);" value='<?php echo $FamilyName; ?>' required  >
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 89%;font-size:20px;color:black;" >تاريخ الميلاد<span class="text-danger">*</label>
@@ -252,35 +235,26 @@ li button.active {
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 89%;font-size:20px;color:black;" >رقم المحمول<span class="text-danger">*</label>
-                                        <input type="text" name="MobileNumber" class="form-control" style="direction:RTL;" value='0<?php echo $Mobile; ?>' required>
+                                        <input type="text" name="MobileNumber" class="form-control" style="direction:RTL;" pattern="[0-9]{6,25}" value='0<?php echo $Mobile; ?>' required>
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 90%;font-size:20px;color:black;" >رقم الهاتف<span class="text-danger">*</label>
-                                        <input type="text" name="Home" class="form-control" style="direction:RTL;" value='<?php echo $Home; ?>' required>
+                                        <input type="text" name="Home" class="form-control" style="direction:RTL;" pattern="[0-9]{6,25}" value='<?php echo $Home; ?>' required>
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 89%;font-size:20px;color:black;" >الرقم القومى<span class="text-danger">*</label>
-                                        <input type="text" name="NationaID" class="form-control" style="direction:RTL;"value='<?php echo $NationalID; ?>' required>
+                                        <input type="text" name="NationaID" class="form-control" style="direction:RTL;"pattern="[0-9]{11,}" value='<?php echo $NationalID; ?>' required>
                                     </div>
-                                   
                                     <div class="form-group">
                                         <label class="label" style="margin-left: 94%;font-size:20px;color:black;" >البلد<span class="text-danger">*</label>
                                         <select class="form-control" name="state" id="country" style="direction:RTL;"required>
                                         <option value=0 >اختر البلد</option>
                     <?php
                          
-                            $servername = "localhost";
-                            $name = "root";
-                            $password = "";
-                            
-                            // Create connection
-                            $conn = new mysqli($servername, $name, $password);
-                            // Check connection
-                            if ($conn->connect_error) {
-                                die("Connection failed: " . $conn->connect_error);
-                            }
+                         $connection = new DB();
+                         $conn = $connection->connect();
                             $conn->query("SET NAMES 'utf8'");
-                            $query="SELECT * FROM alazharuni.address WHERE Parent_ID=0";
+                            $query="SELECT * FROM address WHERE Parent_ID=0";
                             $resultQuery = $conn->query($query);
                             while($rowq = $resultQuery->fetch_assoc()){
                                 if($rowq==true)
@@ -318,10 +292,6 @@ li button.active {
                 });
                 </script>
                 </div>
-                                    <div class="form-group">
-                                        <label for="pass" class="label"  for="val-password" style="margin-left: 90%;font-size:20px;color:black;" > كلمه السر<span class="text-danger">*</label>
-                                        <input id="pass" type="text" class="form-control"  style="direction:RTL;" value='<?php echo $UserP; ?>' name ="Pass1" required>
-                                    </div>
                                     <button type="submit" name="save" class="btn btn-primary btn-flat m-b-30 m-t-30">تعديل</button>
                                     <div class="register-link m-t-15 text-center">
                                     </div>
@@ -330,7 +300,48 @@ li button.active {
                             
 
     </div>
-
+    <script language="javascript" type="text/javascript">
+                        // Allow Arabic Characters only
+        function CheckArabicCharactersOnly(e) 
+                    {
+                        var unicode = e.charCode ? e.charCode : e.unicode
+                        if (unicode != 8)
+                         { //if the key isn't the backspace key (which we should allow)
+                                 if (unicode == 32)
+                                 { return}
+                                else 
+                                {
+                                    if ((unicode >= 48 && unicode <= 57) || (unicode >= 65 && unicode <= 90) || (unicode >= 97 && unicode <= 122)
+                                     || (specialKeys.indexOf(e.unicode) != -1 && e.charCode != e.unicode)) 
+                                    //if not a number or arabic
+                                    alert("اكتب باللغه العربيه");
+                                    return false; //disable key press
+                                 }
+                          }
+                        }
+         function validateForm() 
+                { 
+                    x=document.forms["myForm"]["MobileNumber"].value;
+                    if (x.length!=11 || isNaN(x) ) 
+                    {
+                        alert("تاكد من رقم المحمول");
+                        return false;
+                    }
+                    x=document.forms["myForm"]["Home"].value;
+                    if (x.length!=8 || isNaN(x) ) 
+                    {
+                        alert("تاكد من رقم المنزل");
+                        return false;
+                    }
+                    x=document.forms["myForm"]["NationaID"].value;
+                    if (x.length!=14 || isNaN(x) ) 
+                    {
+                        alert("تاكد من الرقم القومي");
+                        return false;
+                    }
+                }
+           
+     </script>             
 
                 <!-- End PAge Content -->
             </div>

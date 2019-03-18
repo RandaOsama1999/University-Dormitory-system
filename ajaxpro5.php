@@ -1,18 +1,11 @@
 <?php
-$servername = "localhost";
-$name = "root";
-$password = "";
-
-// Create connection
-$conn = new mysqli($servername, $name, $password);
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include_once "classDatabase.php";
+$connection = new DB();
+$conn = $connection->connect();
 $conn->query("SET NAMES 'utf8'");
 $links_ID=array();
 $links_ID2=array();
-$sql = "SELECT * FROM alazharuni.usertypelinks WHERE userType_ID =".$_POST['userTypeid'].""; 
+$sql = "SELECT * FROM usertypelinks WHERE userType_ID =".$_POST['userTypeid']." AND IsDeleted=0"; 
 $result = $conn->query($sql); 
 
    while($row = $result->fetch_assoc()){
@@ -21,7 +14,7 @@ $result = $conn->query($sql);
             array_push($links_ID, $row['links_ID']);
         }
     }
-    $sqltw = "SELECT * FROM alazharuni.usertypelinks WHERE userType_ID !=".$_POST['userTypeid'].""; 
+    $sqltw = "SELECT * FROM usertypelinks WHERE userType_ID !=".$_POST['userTypeid']." AND IsDeleted=0"; 
     $resulttw = $conn->query($sqltw); 
 
         while($rowtw = $resulttw->fetch_assoc()){
@@ -35,7 +28,7 @@ $result = $conn->query($sql);
             /*for($j=0;$j<sizeof($links_ID);$j++)
             {
                 if($links_ID2[$i] != $links_ID[$j]){*/
-                $sqlt = "SELECT * FROM alazharuni.links WHERE ID =".$arr.""; 
+                $sqlt = "SELECT * FROM links WHERE ID =".$arr." AND IsDeleted=0"; 
                 $resultt = $conn->query($sqlt); 
                 
                     while($rowt = $resultt->fetch_assoc()){

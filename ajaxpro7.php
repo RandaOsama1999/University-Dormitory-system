@@ -1,18 +1,11 @@
 <?php
-$servername = "localhost";
-$name = "root";
-$password = "";
-
-// Create connection
-$conn = new mysqli($servername, $name, $password);
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include_once "classDatabase.php";
+$connection = new DB();
+$conn = $connection->connect();
 $conn->query("SET NAMES 'utf8'");
 
 
-$sql = "SELECT * FROM alazharuni.room WHERE BuildingNo =".$_POST['BuildingNo'].""; 
+$sql = "SELECT * FROM room WHERE BuildingNo =".$_POST['BuildingNo']." AND FloorNo =".$_POST['FloorNo']." AND IsDeleted=0"; 
 
 
 $result = $conn->query($sql); 

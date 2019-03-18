@@ -1,4 +1,5 @@
 <?php
+include_once "classDatabase.php";
 
 class UserType
 {
@@ -46,44 +47,27 @@ class UserType
     }*/
     public static function create(UserType $user)
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $Type=$user->Type;
+        $connection = new DB();
+$conn = $connection->connect();
         $conn->query("SET NAMES 'utf8'");
-                $mysql="INSERT INTO usertype (Type) 
-                VALUES ('$user->Type')";
-                mysqli_query('SET CHARACTER SET utf8'); 
-                mysqli_query($conn,$mysql);
+        date_default_timezone_set("Africa/Cairo");
+        $today = date("Y-m-d H:i:s");
+                $connection->add("usertype","Type,CreatedDateTime,LastUpdatedDateTime,IsDeleted","'$Type','$today','$today',0");
+        
         $conn->close();
-        header("Location:AllPages.php");
+        header("Location:AddUserType.php");
 
     }
     public static function delete(UserType $user)
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $id=$user->ID;
+        $connection = new DB();
+$conn = $connection->connect();
         $conn->query("SET NAMES 'utf8'");
-                $mysql="DELETE FROM usertype WHERE ID=$user->ID";
-                mysqli_query($conn,$mysql);
+        $connection->delete("usertype","ID='$id' AND IsDeleted=0");
         $conn->close();
-        header('location: DeleteUserType.php');
+       header('location: DeleteUserType.php');
 
     }/*
     public static function update(UserType $user)

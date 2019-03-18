@@ -1,5 +1,6 @@
 <?php
 include_once "classRoom.php";
+include_once "classDatabase.php";
 session_start();
 if (!isset($_SESSION['email'])) {
     header('location: page-login.php');
@@ -122,21 +123,12 @@ li button.active {
                         
                                 <?php
                                             
-                                    $servername = "localhost";
-                                    $username = "root";
-                                    $password = "";
-                                    
-                                    // Create connection
-                                    $conn = new mysqli($servername, $username, $password);
-                                    // Check connection
-                                    if ($conn->connect_error) {
-                                        die("Connection failed: " . $conn->connect_error);
-                                    }
-
+                                            $connection = new DB();
+                                            $conn = $connection->connect();
                                     $conn->query("SET NAMES 'utf8'");
 
                                     $email = $_SESSION['email']; 
-                                    $sql = "SELECT * FROM alazharuni.user WHERE Email='$email'";
+                                    $sql = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0";
                                     $result = $conn->query($sql);
                                         while($row = $result->fetch_assoc()){
                                             if($row==true)
@@ -144,13 +136,13 @@ li button.active {
                                                 $Name=$row["FirstName"];
                                                 $FName=$row["FamilyName"];
                                                 $usertype_ID=$row['usertype_ID'];
-                                                $sqltwo = "SELECT * FROM alazharuni.usertypelinks WHERE userType_ID='$usertype_ID'";
+                                                $sqltwo = "SELECT * FROM usertypelinks WHERE userType_ID='$usertype_ID' AND IsDeleted=0";
                                                 $resulttwo = $conn->query($sqltwo);
                                                     while($rowtwo = $resulttwo->fetch_assoc()){
                                                         if($rowtwo==true)
                                                         {
                                                             $links_ID=$rowtwo['links_ID'];
-                                                            $sqlt = "SELECT * FROM alazharuni.links WHERE ID='$links_ID'";
+                                                            $sqlt = "SELECT * FROM links WHERE ID='$links_ID' AND IsDeleted=0";
                                                             $resultt = $conn->query($sqlt);
                                                                 while($rowt = $resultt->fetch_assoc()){
                                                                     if($rowt==true)
@@ -195,7 +187,6 @@ li button.active {
                                         <thead>
                                             <tr>
                                                 <th>المهنة</th>
-                                                <th>الرقم السري</th>
                                                 <th>البريد الالكتروني</th>
                                                 <th>المحافظة</th>
                                                 <th>البلد</th>
@@ -208,7 +199,6 @@ li button.active {
                                         <tfoot>
                                             <tr>
                                             <th>المهنة</th>
-                                                <th>الرقم السري</th>
                                                 <th>البريد الالكتروني</th>
                                                 <th>المحافظة</th>
                                                 <th>البلد</th>
@@ -220,32 +210,22 @@ li button.active {
                                         </tfoot>
                                         <tbody>
                                             <?php
-                                                $servername = "localhost";
-                                                $username = "root";
-                                                $password = "";
-                                                $dbname = "alazharuni";
-                                        
-                                                // Create connection
-                                                $conn = new mysqli($servername, $username, $password, $dbname);
-                                                // Check connection
-                                                if ($conn->connect_error) {
-                                                    die("Connection failed: " . $conn->connect_error);
-                                                } 
+                                                $connection = new DB();
+                                                $conn = $connection->connect();
                                                 $conn->query("SET NAMES 'utf8'");
-                                                $sql = "SELECT * FROM user";
+                                                $sql = "SELECT * FROM user WHERE IsDeleted=0 AND usertype_ID!=1";
                                                 $result = $conn->query($sql);
                                                 if ($result->num_rows > 0) {
                                                     while($row = $result->fetch_assoc()) {
                                                         echo "<tr>";
                                                         $usertypeID=$row['usertype_ID'];
-                                                        $sqltwo = "SELECT * FROM usertype WHERE ID=$usertypeID";
+                                                        $sqltwo = "SELECT * FROM usertype WHERE ID=$usertypeID AND IsDeleted=0";
                                                         $resulttwo = $conn->query($sqltwo);
                                                         if ($resulttwo->num_rows > 0) {
                                                             while($rowtwo = $resulttwo->fetch_assoc()) {
                                                                 echo "<td style='color:#514F4E;'>" . $rowtwo['Type'] . "</td>";
                                                             }
                                                         }
-                                                        echo "<td style='color:#514F4E;'>" . $row['Password'] . "</td>";
                                                         echo "<td style='color:#514F4E;'>" . $row['Email'] . "</td>";
                                                         $Address=$row['Address_ID'];
                                                         $sqltwo = "SELECT * FROM address WHERE ID=$Address";

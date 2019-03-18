@@ -1,5 +1,9 @@
 <?php
 include_once "classRoom.php";
+include_once "classDatabase.php";
+$connection = new DB();
+$conn = $connection->connect();
+
 session_start();
 if (!isset($_SESSION['email'])) {
     header('location: page-login.php');
@@ -134,21 +138,12 @@ li button.active {
                         
                                 <?php
                                             
-                                    $servername = "localhost";
-                                    $username = "root";
-                                    $password = "";
-                                    
-                                    // Create connection
-                                    $conn = new mysqli($servername, $username, $password);
-                                    // Check connection
-                                    if ($conn->connect_error) {
-                                        die("Connection failed: " . $conn->connect_error);
-                                    }
-
+                                            $connection = new DB();
+                                            $conn = $connection->connect();
                                     $conn->query("SET NAMES 'utf8'");
 
                                     $email = $_SESSION['email']; 
-                                    $sql = "SELECT * FROM alazharuni.user WHERE Email='$email'";
+                                    $sql = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0";
                                     $result = $conn->query($sql);
                                         while($row = $result->fetch_assoc()){
                                             if($row==true)
@@ -156,13 +151,13 @@ li button.active {
                                                 $Name=$row["FirstName"];
                                                 $FName=$row["FamilyName"];
                                                 $usertype_ID=$row['usertype_ID'];
-                                                $sqltwo = "SELECT * FROM alazharuni.usertypelinks WHERE userType_ID='$usertype_ID'";
+                                                $sqltwo = "SELECT * FROM usertypelinks WHERE userType_ID='$usertype_ID' AND IsDeleted=0";
                                                 $resulttwo = $conn->query($sqltwo);
                                                     while($rowtwo = $resulttwo->fetch_assoc()){
                                                         if($rowtwo==true)
                                                         {
                                                             $links_ID=$rowtwo['links_ID'];
-                                                            $sqlt = "SELECT * FROM alazharuni.links WHERE ID='$links_ID'";
+                                                            $sqlt = "SELECT * FROM links WHERE ID='$links_ID' AND IsDeleted=0";
                                                             $resultt = $conn->query($sqlt);
                                                                 while($rowt = $resultt->fetch_assoc()){
                                                                     if($rowt==true)
@@ -203,18 +198,10 @@ li button.active {
 									<select class="form-control" name="BuildingNo" id="BuildingNo" style="direction:RTL;" required>
                     <?php
                          
-                            $servername = "localhost";
-                            $name = "root";
-                            $password = "";
-                            
-                            // Create connection
-                            $conn = new mysqli($servername, $name, $password);
-                            // Check connection
-                            if ($conn->connect_error) {
-                                die("Connection failed: " . $conn->connect_error);
-                            }
+                         $connection = new DB();
+                         $conn = $connection->connect();
                             $conn->query("SET NAMES 'utf8'");
-                            $query="SELECT * FROM alazharuni.buildings ";
+                            $query="SELECT * FROM buildings ";
                             $resultQuery = $conn->query($query);
                             while($rowq = $resultQuery->fetch_assoc()){
                                 if($rowq==true)
@@ -232,19 +219,42 @@ li button.active {
                 </select>
 									</div>
 									<div class="form-group">
-                                    <label for="pass" class="label" for="val-email" style="margin-left: 90%;font-size:20px;color:black;">رقم الغرفه<span class="text-danger">*</span></label>
-                                    <select class="form-control" name="room" id="room" style="direction:RTL;" required>
-                    
-                    </select>
-                    <script type="text/javascript">
+                                    <label for="pass" class="label" for="val-email" style="margin-left: 90%;font-size:20px;color:black;">رقم الدور<span class="text-danger">*</span></label>
+                                        <select class="form-control" name="FloorNo" id="FloorNo" style="direction:RTL;" required>
+                                        </select>
+                                    <script type="text/javascript">
                     $(document).ready(function(){
                         $('#BuildingNo').on('change',function(){
                             var BuildingNo = $(this).val();
                             if(BuildingNo){
                                 $.ajax({
                                     type:'POST',
-                                    url:'ajaxpro7.php',
+                                    url:'ajaxpro8.php',
                                     data:'BuildingNo='+BuildingNo,
+                                    success:function(html){
+                                        $('#FloorNo').html(html);
+                                    }
+                                }); }
+                        });
+                    });
+                    </script>
+									
+									</div>
+									<div class="form-group">
+                                    <label for="pass" class="label" for="val-email" style="margin-left: 90%;font-size:20px;color:black;">رقم الغرفه<span class="text-danger">*</span></label>
+                                    <select class="form-control" name="room" id="room" style="direction:RTL;" required>
+                    
+                    </select>
+                   <script type="text/javascript">
+                    $(document).ready(function(){
+                        $('#FloorNo').on('change',function(){
+                            var BuildingNo = $('#BuildingNo').val();
+                            var FloorNo = $(this).val();
+                            if(BuildingNo){
+                                $.ajax({
+                                    type:'POST',
+                                    url:'ajaxpro7.php',
+                                    data:'BuildingNo='+BuildingNo+'&FloorNo='+FloorNo,
                                     success:function(html){
                                         $('#room').html(html);
                                     }

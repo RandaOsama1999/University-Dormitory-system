@@ -1,16 +1,9 @@
 <?php
-    $servername = "localhost";
-    $name = "root";
-    $password = "";
-        
-        // Create connection
-        $conn = new mysqli($servername, $name, $password);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
+include_once "classDatabase.php";
+$connection = new DB();
+$conn = $connection->connect();
         $id2=array();
-                    $sqltwo = "SELECT * FROM alazharuni.reservation";
+                    $sqltwo = "SELECT * FROM reservation WHERE IsDeleted=0";
                     $resulttwo = $conn->query($sqltwo);
                     while($rowtwo = $resulttwo->fetch_assoc()){
                         if($rowtwo==true)
@@ -22,8 +15,13 @@
 for($j=0;$j<sizeof($id2);$j++)
 {
 if(isset($_GET["term"])){
-    
-    $sql = "SELECT * FROM alazharuni.user WHERE Email LIKE ? AND ID=".$id2[$j]."";
+    $sqltwo = "SELECT * FROM student WHERE ID=".$id2[$j]."";
+                $resulttwo = $conn->query($sqltwo) or die($conn->error);
+                while($rowtwo = $resulttwo->fetch_assoc()){
+                    if($rowtwo==true)
+                    {
+                        $stdid=$rowtwo['Student_ID'];
+    $sql = "SELECT * FROM user WHERE Email LIKE ? AND ID=$stdid AND IsDeleted=0";
     
     if($stmt = mysqli_prepare($conn, $sql)){
         // Bind variables to the prepared statement as parameters
@@ -54,6 +52,8 @@ if(isset($_GET["term"])){
     // Close statement
     mysqli_stmt_close($stmt);
 }
+                }
+            }
 } 
 // close connection
 mysqli_close($conn);

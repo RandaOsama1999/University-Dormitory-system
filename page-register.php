@@ -1,23 +1,52 @@
 <?php
+$access_key = '398560a0ad027a0e28d23abe8cb12a50';
 include_once "classUser.php";
+include_once "classStudent.php";
+include_once "classDatabase.php";
     
     if(isset($_POST['Submit']))
     {
-        $obj = new Users();
-        $obj->FirstName=$_POST['firstname'];
-        $obj->MiddleName=$_POST['lastname'];
-        $obj->FamilyName=$_POST['familyname'];
-        $obj->DateOfBirth=$_POST['dateofbirth'];
-        $obj->Mobile=$_POST['MobileNumber'];
-        $obj->Home=$_POST['Home'];
-        $obj->Address=$_POST['city'];
-        $obj->Email=$_POST['PersonalMail'];
-        $obj->Password=$_POST['Pass1'];
-        $obj->national_ID=$_POST['NationaID'];
+        $obj = new Student();
+        $user = new Users();
+        $user->FirstName=$_POST['firstname'];
+        $user->MiddleName=$_POST['lastname'];
+        $user->FamilyName=$_POST['familyname'];
+        $user->DateOfBirth=$_POST['dateofbirth'];
+        $user->Mobile=$_POST['MobileNumber'];
+        $user->Home=$_POST['Home'];
+        $user->Address=$_POST['city'];
+        $user->Email=$_POST['PersonalMail'];
+        $passhash=$_POST['Pass1'];
+        $user->Password=md5($passhash);
+        $user->national_ID=$_POST['NationaID'];
         $obj->facultyID=$_POST['facultyID']; 
         $obj->GradeID=$_POST['GradeID']; 
-        return Users::SignUp($obj);
+
+        $email_address =  $user->Email;
+        $ch = curl_init('http://apilayer.net/api/check?access_key='.$access_key.'&email='.$email_address.'');  
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         
+        // Store the data:
+        $json = curl_exec($ch);
+        curl_close($ch);
+        
+        // Decode JSON response:
+        $validationResult = json_decode($json, true);
+        
+        if ($validationResult['format_valid'] && $validationResult['smtp_check']) {
+            //echo "<script> alert('Email is valid');</script>";
+            return Student::SignUp($obj,$user);
+        }
+        else{
+            echo "<script> alert('Email is not valid');</script>";
+        }
+        
+        
+    }
+
+    if(isset($_POST['reg']))
+    {
+        header("location: Regulations.php");
     }
 ?>
 <!DOCTYPE html>
@@ -60,21 +89,27 @@ include_once "classUser.php";
                 <div class="row justify-content-center">
                     <div class="col-lg-4">
                         <div class="login-content card">
+                            
                             <div class="login-form">
-                                <h2 style="text-align:center;">انشاء حساب</h2>
+                            <form  method="post">
+                            <button type="submit" name="reg"class="btn btn-primary btn-flat m-b-30 m-t-30">نبذة عن السكن الطلابي</button>
+                                   
+</form>
+<br>
+                                <h2 style="text-align:center;">طلب تقديم للسكن</h2>
                                 <div class="form-validation">
-                                <form class="form-valide" method="post">
+                                <form class="form-valide" method="post"  name="signupForm" onsubmit="return validateForm()">
                                     <div class="form-group">
                                         <label for="user" class="label" style="margin-left: 80%;font-size:20px">  اسمك<span class="text-danger">*</label>
-                                        <input id="user" type="text" name="firstname" class="form-control" style="direction:RTL;" required  >
+                                        <input id="firstname" type="text" name="firstname" class="form-control" style="direction:RTL"  pattern="[أ-ي]{1,30}" title="اكتب باللغه العربيه" onkeypress="return CheckArabicCharactersOnly(event);" required  >
                                     </div>
                                     <div class="form-group">
                                         <label for="user" class="label" style="margin-left: 70%;font-size:20px"> اسم الاب<span class="text-danger">*</label>
-                                        <input id="user" type="text" name="lastname" class="form-control" style="direction:RTL;" required  >
+                                        <input id="lastname" type="text" name="lastname" class="form-control" style="direction:RTL"   pattern="[أ-ي]{1,30}" title="اكتب باللغه العربيه" onkeypress="return CheckArabicCharactersOnly(event);" required  >
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 66%;font-size:20px" >اسم العائلة<span class="text-danger">*</label>
-                                        <input id="user" type="text"  name="familyname" class="form-control" style="direction:RTL;" required  >
+                                        <input id="familyname" type="text"  name="familyname" class="form-control" style="direction:RTL"  pattern="[أ-ي]{1,30}"  title="اكتب باللغه العربيه" onkeypress="return CheckArabicCharactersOnly(event);" required  >
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 60%;font-size:20px" >تاريخ الميلاد<span class="text-danger">*</label>
@@ -82,35 +117,26 @@ include_once "classUser.php";
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 60%;font-size:20px" >رقم المحمول<span class="text-danger">*</label>
-                                        <input type="text" name="MobileNumber" class="form-control" style="direction:RTL;" required>
+                                        <input type="text" id="MobileNumber" name="MobileNumber" class="form-control"  pattern="[0-9]{6,25}" style="direction:RTL;" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 65%;font-size:20px" >رقم الهاتف<span class="text-danger">*</label>
-                                        <input type="text" name="Home" class="form-control" style="direction:RTL;" required>
+                                        <input type="text" name="Home"  id="Home" class="form-control"   pattern="[0-9]{6,25}" style="direction:RTL;" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 65%;font-size:20px" >رقم القومى<span class="text-danger">*</label>
-                                        <input type="text" name="NationaID" class="form-control" style="direction:RTL;" required>
+                                        <input type="text" name="NationaID" id="NationaID" class="form-control"   pattern="[0-9]{11,}" style="direction:RTL;" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" style="margin-left: 65%;font-size:20px">التقدير<span class="text-danger">*</label>
-                                        <select name="GradeID"  class="form-control" style="direction:RTL;"  required>
+                                        <select name="GradeID" id="GradeID" class="form-control" onchange="validatechoose()" style="direction:RTL;"  required>
                                         <option value=0>اختر التقدير</option>
                                         <?php
                          
-                                                 $servername = "localhost";
-                                                 $name = "root";
-                                                 $password = "";
-                         
-                                                 // Create connection
-                                                 $conn = new mysqli($servername, $name, $password);
-                                                 // Check connection
-                                                 if ($conn->connect_error) {
-                                                    die("Connection failed: " . $conn->connect_error);
-                                                 }
-
+                         $connection = new DB();
+                         $conn = $connection->connect();
                                                  $conn->query("SET NAMES 'utf8'");
-                                                 $sql="SELECT * FROM alazharuni.grades";
+                                                 $sql="SELECT * FROM grades";
                                                  $resultQuery = $conn->query($sql);
                                                  while($row = $resultQuery->fetch_assoc())
                                                  {
@@ -131,19 +157,10 @@ include_once "classUser.php";
                                         <option value=0>اختر الكليه</option>
                                         <?php
                          
-                                                 $servername = "localhost";
-                                                 $name = "root";
-                                                 $password = "";
-                         
-                                                 // Create connection
-                                                 $conn = new mysqli($servername, $name, $password);
-                                                 // Check connection
-                                                 if ($conn->connect_error) {
-                                                    die("Connection failed: " . $conn->connect_error);
-                                                 }
-
+                         $connection = new DB();
+                         $conn = $connection->connect();
                                                  $conn->query("SET NAMES 'utf8'");
-                                                 $sql="SELECT * FROM alazharuni.faculties";
+                                                 $sql="SELECT * FROM faculties";
                                                  $resultQuery = $conn->query($sql);
                                                  while($row = $resultQuery->fetch_assoc())
                                                  {
@@ -164,18 +181,10 @@ include_once "classUser.php";
                                         <option value=0>اختر بلدك</option>
                     <?php
                          
-                            $servername = "localhost";
-                            $name = "root";
-                            $password = "";
-                            
-                            // Create connection
-                            $conn = new mysqli($servername, $name, $password);
-                            // Check connection
-                            if ($conn->connect_error) {
-                                die("Connection failed: " . $conn->connect_error);
-                            }
+                         $connection = new DB();
+                         $conn = $connection->connect();
                             $conn->query("SET NAMES 'utf8'");
-                            $query="SELECT * FROM alazharuni.address WHERE Parent_ID=0";
+                            $query="SELECT * FROM address WHERE Parent_ID=0";
                             $resultQuery = $conn->query($query);
                             while($rowq = $resultQuery->fetch_assoc()){
                                 if($rowq==true)
@@ -214,21 +223,24 @@ include_once "classUser.php";
                 </div>
                                     <div class="form-group">
                                         <label for="pass" class="label" for="val-email" style="margin-left: 55%;font-size:20px">البريد الالكتروني<span class="text-danger">*</span></label>
-                                        <input id="pass" type="email" name="PersonalMail" class="form-control">
+                                        <input id="email" type="email" name="PersonalMail"  class="form-control">
                                     </div>
+                                    <form>
                                     <div class="form-group">
                                         <label for="pass" class="label"  for="val-password" style="margin-left: 70%;font-size:20px" > كلمه السر<span class="text-danger">*</label>
-                                        <input id="pass" type="password" class="form-control" name ="Pass1" required>
+                                        <input id="pass1" type="password" class="form-control" name ="Pass1" required>
                                     </div>
                                     <div class="form-group">
                                         <label for="pass" class="label"  for="val-confirm-password" style="margin-left: 58%;font-size:20px" >اعاده كلمه السر<span class="text-danger">*</label>
-                                        <input id="pass" type="password" class="form-control" name ="Pass2" required>
+                                        <input id="pass2" type="password" class="form-control" name ="Pass2" required>
                                     </div>
-                                    <button type="submit" name="Submit" class="btn btn-primary btn-flat m-b-30 m-t-30">انشاء</button>
-                                    <div class="register-link m-t-15 text-center">
+                                    <button type="submit" name="Submit"class="btn btn-primary btn-flat m-b-30 m-t-30">انشاء</button>
+                                    
+                                     <div class="register-link m-t-15 text-center">
                                         <p>هل لديك حساب بالفعل؟ <a href="page-login.php">تسجيل الدخول</a></p>
                                     </div>
                                 </form>
+                                
 </div>
                             </div>
                         </div>
@@ -238,6 +250,72 @@ include_once "classUser.php";
         </div>
 
     </div>
+    <script language="javascript" type="text/javascript">
+                        // Allow Arabic Characters only
+        function CheckArabicCharactersOnly(e) 
+                    {
+                        var unicode = e.charCode ? e.charCode : e.unicode
+                        if (unicode != 8)
+                         { //if the key isn't the backspace key (which we should allow)
+                                 if (unicode == 32)
+                                 { return}
+                                else 
+                                {
+                                    if ((unicode >= 48 && unicode <= 57) || (unicode >= 65 && unicode <= 90) || (unicode >= 97 && unicode <= 122)
+                                     || (specialKeys.indexOf(e.unicode) != -1 && e.charCode != e.unicode)) 
+                                    //if not a number or arabic
+                                    alert("اكتب باللغه العربيه");
+                                    return false; //disable key press
+                                 }
+                          }
+                        }
+         function validateForm() 
+                { 
+                    x=document.forms["signupForm"]["MobileNumber"].value;
+                    if (x.length!=11 || isNaN(x) ) 
+                    {
+                        alert("تاكد من رقم المحمول");
+                        return false;
+                    }
+                    x=document.forms["signupForm"]["Home"].value;
+                    if (x.length!=8 || isNaN(x) ) 
+                    {
+                        alert("تاكد من رقم المنزل");
+                        return false;
+                    }
+                    x=document.forms["signupForm"]["NationaID"].value;
+                    if (x.length!=14 || isNaN(x) ) 
+                    {
+                        alert("تاكد من الرقم القومي");
+                        return false;
+                    }
+                    var password = document.forms["signupForm"]["Pass1"].value
+                    var confirm_password = document.forms["signupForm"]["Pass2"].value;
+
+                    if(password != confirm_password) {
+                        alert("كلمه السر غير متشابهة");
+                        return false;
+                    } 
+                }
+        function validatechoose()
+        {
+              var b = 0;
+              var x=document.getElementsByName("GradeID"); 
+               for(j=0;j<x.length;j++) 
+                 {
+                   if(x.item(j).checked == false) 
+                      {
+                        b++;
+                      }
+                 }
+                  if(b == x.length) 
+                    {
+                        alert("من فضلك اختر التقدير");
+                        return false;
+                    } 
+               
+        }        
+     </script>
     <!-- End Wrapper -->
     <!-- All Jquery -->
     <script src="js/lib/jquery/jquery.min.js"></script>

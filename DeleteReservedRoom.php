@@ -1,5 +1,6 @@
 <?php
 include_once "classReservation.php";
+include_once "classDatabase.php";
 session_start();
 if (!isset($_SESSION['email'])) {
     header('location: page-login.php');
@@ -10,30 +11,30 @@ if (isset($_GET['Logout'])) {
     header("location: page-login.php");
 }
 
-            $servername = "localhost";
-            $username = "root";
-            $password = "";
-            
-            // Create connection
-            $conn = new mysqli($servername, $username, $password);
-            // Check connection
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
+$connection = new DB();
+$conn = $connection->connect();
             $conn->query("SET NAMES 'utf8'");
             $email = $_SESSION['email']; 
 
             if(isset($_POST['remove'])){
                 $mail=$_POST['mail'];
-                $sqltwo = "SELECT ID FROM alazharuni.user WHERE Email='$mail'";
+                $sqltwo = "SELECT ID FROM user WHERE Email='$mail' AND IsDeleted=0";
                 $resulttwo = $conn->query($sqltwo) or die($conn->error);
                 while($rowtwo = $resulttwo->fetch_assoc()){
                     if($rowtwo==true)
                     {
                         $id=$rowtwo['ID'];
-                        $obj = new ReservRooms();
-                        $obj->Student_ID=$id;
-                        return ReservRooms::delete($obj);
+                        $sqlt = "SELECT ID FROM student WHERE Student_ID='$id'";
+                        $resultt = $conn->query($sqlt) or die($conn->error);
+                        while($rowt = $resultt->fetch_assoc()){
+                            if($rowt==true)
+                            {
+                                $stdid=$rowt['ID'];
+                                $obj = new ReservRooms();
+                                $obj->Student_ID=$stdid;
+                                return ReservRooms::delete($obj);
+                            }
+                        }
                         
                     }
                 }
@@ -201,21 +202,12 @@ li button.active {
                         
                                 <?php
                                             
-                                    $servername = "localhost";
-                                    $username = "root";
-                                    $password = "";
-                                    
-                                    // Create connection
-                                    $conn = new mysqli($servername, $username, $password);
-                                    // Check connection
-                                    if ($conn->connect_error) {
-                                        die("Connection failed: " . $conn->connect_error);
-                                    }
-
+                                            $connection = new DB();
+                                            $conn = $connection->connect();
                                     $conn->query("SET NAMES 'utf8'");
 
                                     $email = $_SESSION['email']; 
-                                    $sql = "SELECT * FROM alazharuni.user WHERE Email='$email'";
+                                    $sql = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0";
                                     $result = $conn->query($sql);
                                         while($row = $result->fetch_assoc()){
                                             if($row==true)
@@ -223,13 +215,13 @@ li button.active {
                                                 $Name=$row["FirstName"];
                                                 $FName=$row["FamilyName"];
                                                 $usertype_ID=$row['usertype_ID'];
-                                                $sqltwo = "SELECT * FROM alazharuni.usertypelinks WHERE userType_ID='$usertype_ID'";
+                                                $sqltwo = "SELECT * FROM usertypelinks WHERE userType_ID='$usertype_ID' AND IsDeleted=0";
                                                 $resulttwo = $conn->query($sqltwo);
                                                     while($rowtwo = $resulttwo->fetch_assoc()){
                                                         if($rowtwo==true)
                                                         {
                                                             $links_ID=$rowtwo['links_ID'];
-                                                            $sqlt = "SELECT * FROM alazharuni.links WHERE ID='$links_ID'";
+                                                            $sqlt = "SELECT * FROM links WHERE ID='$links_ID' AND IsDeleted=0";
                                                             $resultt = $conn->query($sqlt);
                                                                 while($rowt = $resultt->fetch_assoc()){
                                                                     if($rowt==true)

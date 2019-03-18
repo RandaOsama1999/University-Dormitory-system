@@ -1,23 +1,15 @@
 <?php
 include_once "classUser.php";
+include_once "classDatabase.php";
 session_start();
-            
-            $servername = "localhost";
-            $username = "root";
-            $password = "";
-            
-            // Create connection
-            $conn = new mysqli($servername, $username, $password);
-            // Check connection
-            if ($conn->connect_error) {
-                die("Connection failed: " . $conn->connect_error);
-            }
+$connection = new DB();
+$conn = $connection->connect();
 			$conn->query("SET NAMES 'utf8'");
-            if(isset($_POST['login'])){
-                $count=0;
+            if(isset($_POST['send'])){
                 $email = $_POST['email'];
                 $pass = $_POST['password'];
-                $sql = "SELECT * FROM alazharuni.user WHERE Email='$email' AND Password='$pass'";
+                $passhash=md5($pass);
+                $sql = "SELECT * FROM user WHERE Email='$email' AND Password='$passhash' AND IsDeleted=0";
                 $result = $conn->query($sql);
                 while($row = $result->fetch_assoc()){
                     if($row==true)
@@ -26,18 +18,6 @@ session_start();
                         header("location: AllPages.php");
                         
                     }
-                }
-                if($count==0)
-                {
-                    echo '
-                    <div id="myModal" class="modal">
-    
-                    <div class="modal-header">
-                    <span class="close">&times;</span>
-                    <h2 class="header">Wrong Login Info</h2>
-                    </div>
-                
-                </div>';
                 }
 						}
 						
@@ -102,11 +82,11 @@ session_start();
                     </div>
                     <div>
                                         <label class="pull-right" >
-        										<a href="#" >هل نسيت كلمة المرور؟</a>
+        										<a href="page-forgetpassword.php" >هل نسيت كلمة المرور؟</a>
         									</label>
 
                                     </div>
-                                    <button type="submit" name="login" class="btn btn-primary btn-flat m-b-30 m-t-30">تسجيل الدخول</button>
+                                    <button type="submit" name="send" class="btn btn-primary btn-flat m-b-30 m-t-30">تسجيل الدخول</button>
                                     <div class="register-link m-t-15 text-center">
                                         <p> ليس لديك حساب؟ <a href="page-register.php">انشئ حساب من هنا </a></p>
                                     </div>

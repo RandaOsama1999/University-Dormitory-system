@@ -1,4 +1,5 @@
 <?php
+include_once "classDatabase.php";
 
 class LinkUser
 {
@@ -63,41 +64,26 @@ class LinkUser
     }*/
     public static function create(LinkUser $link)
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $userType_ID=$link->userType_ID;
+        $links_ID=$link->links_ID;
+        $connection = new DB();
+$conn = $connection->connect();
         $conn->query("SET NAMES 'utf8'");
-                $mysql="INSERT INTO usertypelinks (userType_ID,links_ID) 
-                VALUES ('$link->userType_ID','$link->links_ID')";
-                mysqli_query($conn,$mysql);
+        date_default_timezone_set("Africa/Cairo");
+        $today = date("Y-m-d H:i:s");
+        $connection->add("usertypelinks","userType_ID,links_ID,CreatedDateTime,LastUpdatedDateTime,IsDeleted","'$userType_ID','$links_ID','$today','$today',0");
         $conn->close();
-        header("Location:AllPages.php");
+        header("Location:AddPermission.php");
 
     }
     public static function delete(LinkUser $link)
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $userType_ID=$link->userType_ID;
+        $links_ID=$link->links_ID;
+        $connection = new DB();
+$conn = $connection->connect();
         $conn->query("SET NAMES 'utf8'");
-                $mysql="DELETE FROM usertypelinks WHERE userType_ID=$link->userType_ID AND links_ID=$link->links_ID";
-                mysqli_query($conn,$mysql);
+        $connection->delete("usertypelinks","userType_ID='$userType_ID' AND links_ID='$links_ID' AND IsDeleted=0");
         $conn->close();
         header('location: DeletePermission.php');
 

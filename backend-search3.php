@@ -1,16 +1,9 @@
 <?php
-    $servername = "localhost";
-    $name = "root";
-    $password = "";
-        
-        // Create connection
-        $conn = new mysqli($servername, $name, $password);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
+include_once "classDatabase.php";
+$connection = new DB();
+$conn = $connection->connect();
         $id2=array();
-                    $sqltwo = "SELECT * FROM alazharuni.student WHERE State_ID=2";
+                    $sqltwo = "SELECT * FROM student WHERE State_ID=2";
                     $resulttwo = $conn->query($sqltwo);
                     while($rowtwo = $resulttwo->fetch_assoc()){
                         if($rowtwo==true)
@@ -23,7 +16,7 @@ for($j=0;$j<sizeof($id2);$j++)
 {
 if(isset($_GET["term"])){
     
-    $sql = "SELECT * FROM alazharuni.user WHERE Email LIKE ? AND ID=".$id2[$j]."";
+    $sql = "SELECT * FROM user WHERE Email LIKE ? AND ID=".$id2[$j]." AND IsDeleted=0";
     
     if($stmt = mysqli_prepare($conn, $sql)){
         // Bind variables to the prepared statement as parameters

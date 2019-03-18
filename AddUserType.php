@@ -1,5 +1,6 @@
 <?php
 include_once "classUserType.php";
+include_once "classDatabase.php";
 session_start();
 if (!isset($_SESSION['email'])) {
     header('location: page-login.php');
@@ -131,21 +132,12 @@ li button.active {
                         
                                 <?php
                                             
-                                    $servername = "localhost";
-                                    $username = "root";
-                                    $password = "";
-                                    
-                                    // Create connection
-                                    $conn = new mysqli($servername, $username, $password);
-                                    // Check connection
-                                    if ($conn->connect_error) {
-                                        die("Connection failed: " . $conn->connect_error);
-                                    }
-
+                                            $connection = new DB();
+                                            $conn = $connection->connect();
                                     $conn->query("SET NAMES 'utf8'");
 
                                     $email = $_SESSION['email']; 
-                                    $sql = "SELECT * FROM alazharuni.user WHERE Email='$email'";
+                                    $sql = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0";
                                     $result = $conn->query($sql);
                                         while($row = $result->fetch_assoc()){
                                             if($row==true)
@@ -153,13 +145,13 @@ li button.active {
                                                 $Name=$row["FirstName"];
                                                 $FName=$row["FamilyName"];
                                                 $usertype_ID=$row['usertype_ID'];
-                                                $sqltwo = "SELECT * FROM alazharuni.usertypelinks WHERE userType_ID='$usertype_ID'";
+                                                $sqltwo = "SELECT * FROM usertypelinks WHERE userType_ID='$usertype_ID' AND IsDeleted=0";
                                                 $resulttwo = $conn->query($sqltwo);
                                                     while($rowtwo = $resulttwo->fetch_assoc()){
                                                         if($rowtwo==true)
                                                         {
                                                             $links_ID=$rowtwo['links_ID'];
-                                                            $sqlt = "SELECT * FROM alazharuni.links WHERE ID='$links_ID'";
+                                                            $sqlt = "SELECT * FROM links WHERE ID='$links_ID' AND IsDeleted=0";
                                                             $resultt = $conn->query($sqlt);
                                                                 while($rowt = $resultt->fetch_assoc()){
                                                                     if($rowt==true)
@@ -199,7 +191,7 @@ li button.active {
                                     
                 <div class="form-group">
                                         <label class="label" style="margin-left: 94%;font-size:20px;color:black;" >المهنة<span class="text-danger">*</label>
-                                        <input id="user" type="text" name="usertype" class="form-control" style="direction:RTL;"  required  >
+                                        <input id="user" type="text" name="usertype" class="form-control" style="direction:RTL;"  pattern="[أ-ي]{1,30}" title="اكتب باللغه العربيه" onkeypress="return CheckArabicCharactersOnly(event);" required  >
                                     
                 <br>
                                     <button type="submit" name="Submit" class="btn btn-primary btn-flat m-b-30 m-t-30">اضافة</button>
@@ -210,6 +202,27 @@ li button.active {
                             
 
     </div>
+    <script language="javascript" type="text/javascript">
+                        // Allow Arabic Characters only
+        function CheckArabicCharactersOnly(e) 
+                    {
+                        var unicode = e.charCode ? e.charCode : e.unicode
+                        if (unicode != 8)
+                         { //if the key isn't the backspace key (which we should allow)
+                                 if (unicode == 32)
+                                 { return}
+                                else 
+                                {
+                                    if ((unicode >= 48 && unicode <= 57) || (unicode >= 65 && unicode <= 90) || (unicode >= 97 && unicode <= 122)
+                                     || (specialKeys.indexOf(e.unicode) != -1 && e.charCode != e.unicode)) 
+                                    //if not a number or arabic
+                                    alert("اكتب باللغه العربيه");
+                                    return false; //disable key press
+                                 }
+                          }
+                        }
+
+</script>
 
 
                 <!-- End PAge Content -->

@@ -1,4 +1,5 @@
 <?php
+include_once "classDatabase.php";
 
 class ReservRooms
 {
@@ -6,95 +7,64 @@ class ReservRooms
     public  $ID;
     public  $Student_ID;
     public  $Room_ID;
-    public  $DateFrom;
-    public  $DateTo;
     public function __construct() {
        
         
     }
-    public static function create(ReservRooms $room)
+    /*public static function create(ReservRooms $room)
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $Student_ID=$room->Student_ID;
+    $Room_ID=$room->Room_ID;
+      $DateFrom=$room->DateFrom;
+      $DateTo=$room->DateTo;
+        $connection = new DB();
+$conn = $connection->connect();
         $conn->query("SET NAMES 'utf8'");
-                $mysql="INSERT INTO reservation (Student_ID,DateFrom,DateTo) 
-                VALUES ('$room->Student_ID','$room->DateFrom','$room->DateTo')";
-                mysqli_query($conn,$mysql);
-                $id=mysqli_insert_id($conn);
-                $mysql2="INSERT INTO reservationdetails (Room_ID,Reservation_ID) 
-                VALUES ('$room->Room_ID','$id')";
-                mysqli_query($conn,$mysql2);
-                $mysql3="UPDATE student SET State_ID=1 WHERE Student_ID=$room->Student_ID";
-                mysqli_query($conn,$mysql3);
+        date_default_timezone_set("Africa/Cairo");
+                        $thisyear = date("Y");
+                        $nextyear = $thisyear+1;
+                        $last_id=$connection->addwithid("reservation","Student_ID,Room_ID,CreatedDateTime,LastUpdatedDateTime,IsDeleted","'$Student_ID','$Room_ID','$today','$today',0");
+                    
+                        $connection->add("reservationdetails","YearFrom,YearTo,Reservation_ID","$thisyear','$nextyear','$last_id'");
+
+                        $connection->update("student","State_ID=1","Student_ID=$Student_ID");
         $conn->close();
         header("Location:AddReservation.php");
 
-    }
+    }*/
     public static function update(ReservRooms $room)
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $Student_ID=$room->Student_ID;
+    $Room_ID=$room->Room_ID;
+        $connection = new DB();
+$conn = $connection->connect();
+date_default_timezone_set("Africa/Cairo");
+        $today = date("Y-m-d H:i:s");
         $conn->query("SET NAMES 'utf8'");
-                $mysql="UPDATE reservation SET DateFrom='$room->DateFrom', DateTo='$room->DateTo'  WHERE Student_ID='$room->Student_ID'";
-                mysqli_query($conn,$mysql);
-                $sql="SELECT * FROM reservation WHERE Student_ID=$room->Student_ID";
+        $connection->update("reservation","Room_ID='$Room_ID',LastUpdatedDateTime='$today'","Student_ID=$Student_ID AND IsDeleted=0");
+              /*  $sql="SELECT * FROM reservation WHERE Student_ID=$room->Student_ID";
         $result = $conn->query($sql);
         while($row = $result->fetch_assoc()){
             if($row==true)
             {
                 $id=$row['ID'];
-                $mysql2="UPDATE reservationdetails SET Room_ID='$room->Room_ID' WHERE Reservation_ID='$id'";
+                $connection->update("reservationdetails","DateFrom='$DateFrom' ,DateTo='$DateTo'","Reservation_ID='$id' AND IsDeleted=0");
                 mysqli_query($conn,$mysql2);
             }
-        }
+        }*/
         $conn->close();
         header("Location:UpdateReservation.php");
 
     }
     public static function delete(ReservRooms $reservrooms)
     {
-         $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
+        $Student_ID=$reservrooms->Student_ID;
+        $connection = new DB();
+        $conn = $connection->connect();
 
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-        $sql="SELECT * FROM reservation WHERE Student_ID=$reservrooms->Student_ID";
-        $result = $conn->query($sql);
-        while($row = $result->fetch_assoc()){
-            if($row==true)
-            {
-                $reservrooms->ID=$row['ID'];
-                $mysql="DELETE FROM reservationdetails WHERE ID=$reservrooms->ID";
-                mysqli_query($conn,$mysql);
-            }
-        }
+        $connection->delete("reservation","Student_ID='$Student_ID'");
 
-                $mysql="DELETE FROM reservation WHERE Student_ID=$reservrooms->Student_ID";
-                mysqli_query($conn,$mysql);
+                $connection->update("student","State_ID=3","Student_ID=$Student_ID AND IsDeleted=0");
                 
         $conn->close();
         header('location: DeleteReservedRoom.php');

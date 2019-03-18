@@ -1,18 +1,10 @@
 <?php
-    $servername = "localhost";
-    $name = "root";
-    $password = "";
-        
-        // Create connection
-        $conn = new mysqli($servername, $name, $password);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
- 
+include_once "classDatabase.php";
+$connection = new DB();
+$conn = $connection->connect();
 if(isset($_GET["term"])){
     
-    $sql = "SELECT Email FROM alazharuni.user WHERE Email LIKE ?";
+    $sql = "SELECT Email FROM user WHERE Email LIKE ? AND IsDeleted=0 AND usertype_ID!=1";
     
     if($stmt = mysqli_prepare($conn, $sql)){
         // Bind variables to the prepared statement as parameters

@@ -1,5 +1,6 @@
 <?php
 include_once "classReservation.php";
+include_once "classDatabase.php";
 session_start();
 if (!isset($_SESSION['email'])) {
     header('location: page-login.php');
@@ -122,21 +123,12 @@ li button.active {
                         
                                 <?php
                                             
-                                    $servername = "localhost";
-                                    $username = "root";
-                                    $password = "";
-                                    
-                                    // Create connection
-                                    $conn = new mysqli($servername, $username, $password);
-                                    // Check connection
-                                    if ($conn->connect_error) {
-                                        die("Connection failed: " . $conn->connect_error);
-                                    }
-
+                                            $connection = new DB();
+                                            $conn = $connection->connect();
                                     $conn->query("SET NAMES 'utf8'");
 
                                     $email = $_SESSION['email']; 
-                                    $sql = "SELECT * FROM alazharuni.user WHERE Email='$email'";
+                                    $sql = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0";
                                     $result = $conn->query($sql);
                                         while($row = $result->fetch_assoc()){
                                             if($row==true)
@@ -144,13 +136,13 @@ li button.active {
                                                 $Name=$row["FirstName"];
                                                 $FName=$row["FamilyName"];
                                                 $usertype_ID=$row['usertype_ID'];
-                                                $sqltwo = "SELECT * FROM alazharuni.usertypelinks WHERE userType_ID='$usertype_ID'";
+                                                $sqltwo = "SELECT * FROM usertypelinks WHERE userType_ID='$usertype_ID' AND IsDeleted=0";
                                                 $resulttwo = $conn->query($sqltwo);
                                                     while($rowtwo = $resulttwo->fetch_assoc()){
                                                         if($rowtwo==true)
                                                         {
                                                             $links_ID=$rowtwo['links_ID'];
-                                                            $sqlt = "SELECT * FROM alazharuni.links WHERE ID='$links_ID'";
+                                                            $sqlt = "SELECT * FROM links WHERE ID='$links_ID' AND IsDeleted=0";
                                                             $resultt = $conn->query($sqlt);
                                                                 while($rowt = $resultt->fetch_assoc()){
                                                                     if($rowt==true)
@@ -194,74 +186,76 @@ li button.active {
                                     <table id="example23" class="display nowrap table table-hover table-striped table-bordered" cellspacing="0" width="100%">
                                         <thead>
                                             <tr>
+                                            <th>تاريخ نهاية الحجز</th>
+                                                <th>تاريخ بدأ الحجز</th>
                                             <th>السعة</th>
                                                 <th>الدور</th>
                                                 <th>المبني</th>
                                                 <th>رقم الغرفة</th>
-                                                <th>تاريخ نهاية الحجز</th>
-                                                <th>تاريخ بدأ الحجز</th>
                                                 <th>بريد الطالب الالكتروني</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <?php
-                                                $servername = "localhost";
-                                                $username = "root";
-                                                $password = "";
-                                                $dbname = "alazharuni";
-                                        
-                                                // Create connection
-                                                $conn = new mysqli($servername, $username, $password, $dbname);
-                                                // Check connection
-                                                if ($conn->connect_error) {
-                                                    die("Connection failed: " . $conn->connect_error);
-                                                } 
+                                                $connection = new DB();
+                                                $conn = $connection->connect();
                                                 $conn->query("SET NAMES 'utf8'");
-                                                $sqlt = "SELECT * FROM reservationdetails";
-                                                $resultt = $conn->query($sqlt);
-                                                if ($resultt->num_rows > 0) {
-                                                    while($rowt = $resultt->fetch_assoc()) {
-                                                        $Room_ID=$rowt['Room_ID'];
-                                                        $Reservation_ID=$rowt['Reservation_ID'];
-
-
-                                                $sql = "SELECT * FROM room WHERE ID=$Room_ID";
-                                                $result = $conn->query($sql);
-                                                if ($result->num_rows > 0) {
-                                                    while($row = $result->fetch_assoc()) {
-                                                        $Capacity=$row['Capacity'];
-                                                        $FloorNo=$row['FloorNo'];
-                                                        $BuildingNo=$row['BuildingNo'];
-                                                        $RoomNo=$row['RoomNo'];
-                                                        echo "<tr>";
-                                                        echo "<td style='color:#514F4E;'>" . $Capacity . "</td>";
-                                                        echo "<td style='color:#514F4E;'>" . $FloorNo . "</td>";
-                                                        echo "<td style='color:#514F4E;'>" . $BuildingNo . "</td>";
-                                                        echo "<td style='color:#514F4E;'>" . $RoomNo . "</td>";
-                                                    }
-                                                }
-                                                        $sqltw = "SELECT * FROM reservation WHERE ID=$Reservation_ID";
+                                                
+                                                        $sqltw = "SELECT * FROM reservation WHERE IsDeleted=0";
                                                         $resulttw = $conn->query($sqltw);
                                                         if ($resulttw->num_rows > 0) {
                                                             while($rowtw = $resulttw->fetch_assoc()) {
+                                                                $Reservation_ID=$rowtw['ID'];
                                                                 $Student_ID=$rowtw['Student_ID'];
-                                                                $DateFrom=$rowtw['DateFrom'];
-                                                                $DateTo=$rowtw['DateTo'];
-                                                        echo "<td style='color:#514F4E;'>" . $DateTo . "</td>";
-                                                        echo "<td style='color:#514F4E;'>" . $DateFrom . "</td>";
-
-                                                                $sqltwo = "SELECT * FROM user WHERE ID=$Student_ID";
+                                                                $Room_ID=$rowtw['Room_ID'];
+                                                                $sqlt = "SELECT * FROM reservationdetails WHERE Reservation_ID=$Reservation_ID";
+                                                                $resultt = $conn->query($sqlt);
+                                                                if ($resultt->num_rows > 0) {
+                                                                    while($rowt = $resultt->fetch_assoc()) {
+                                                                        //$Room_ID=$rowt['Room_ID'];
+                                                                        $Reservation_ID=$rowt['Reservation_ID'];
+                                                                        $DateFrom=$rowt['YearFrom'];
+                                                                                $DateTo=$rowt['YearTo'];
+                                                                                echo "<tr>";
+                                                                        echo "<td style='color:#514F4E;'>" . $DateTo . "</td>";
+                                                                        echo "<td style='color:#514F4E;'>" . $DateFrom . "</td>";
+                                                              
+                                                        
+                                                                $sql = "SELECT * FROM room WHERE ID=$Room_ID AND IsDeleted=0";
+                                                                $result = $conn->query($sql);
+                                                                if ($result->num_rows > 0) {
+                                                                    while($row = $result->fetch_assoc()) {
+                                                                        $Capacity=$row['Capacity'];
+                                                                        $FloorNo=$row['FloorNo'];
+                                                                        $BuildingNo=$row['BuildingNo'];
+                                                                        $RoomNo=$row['RoomNo'];
+                                                                        
+                                                                        echo "<td style='color:#514F4E;'>" . $Capacity . "</td>";
+                                                                        echo "<td style='color:#514F4E;'>" . $FloorNo . "</td>";
+                                                                        echo "<td style='color:#514F4E;'>" . $BuildingNo . "</td>";
+                                                                        echo "<td style='color:#514F4E;'>" . $RoomNo . "</td>";
+                                                                    }
+                                                                }
+                                                                $sqltwo = "SELECT * FROM student WHERE ID=$Student_ID";
                                                                 $resulttwo = $conn->query($sqltwo);
                                                                 if ($resulttwo->num_rows > 0) {
                                                                     while($rowtwo = $resulttwo->fetch_assoc()) {
-                                                                        $Email=$rowtwo['Email'];
-                                                                        echo "<td style='color:#514F4E;'>" . $Email . "</td>";
-                                                                        echo "</tr>";
+                                                                        $userid=$rowtwo['Student_ID'];
+                                                                        $sqlto = "SELECT * FROM user WHERE ID=$userid AND IsDeleted=0";
+                                                                        $resultto = $conn->query($sqlto);
+                                                                        if ($resultto->num_rows > 0) {
+                                                                            while($rowto = $resultto->fetch_assoc()) {
+                                                                                $Email=$rowto['Email'];
+                                                                                echo "<td style='color:#514F4E;'>" . $Email . "</td>";
+                                                                                echo "</tr>";
+                                                                            }
+                                                                        }
                                                                     }
                                                                 }
                                                                     
                                                                 }
                                                             }
+                                                            
                                                             
                                                         }
                                                     }

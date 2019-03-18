@@ -1,5 +1,5 @@
 <?php
-
+include_once "classDatabase.php";
 class Rooms
 {
 
@@ -14,19 +14,10 @@ class Rooms
         
     }
 
-    public static function read()
+    /*public static function read()
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $connection = new DB();
+$conn = $connection->connect();
         $conn->query("SET NAMES 'utf8'");
         $sql = "SELECT * FROM room";
         $result = $conn->query($sql);
@@ -49,24 +40,20 @@ class Rooms
         echo "</table>";
         $conn->close();
 
-    }
+    }*/
     public static function create(Rooms $room)
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $BuildingNo=$room->BuildingNo;
+        $FloorNo=$room->FloorNo;
+      $RoomNo=$room->RoomNo;
+      $Capacity=$room->Capacity;
+        $connection = new DB();
+$conn = $connection->connect(); 
         $conn->query("SET NAMES 'utf8'");
-                $mysql="INSERT INTO room (BuildingNo,FloorNo,RoomNo,Capacity) 
-                VALUES ('$room->BuildingNo','$room->FloorNo','$room->RoomNo','$room->Capacity')";
-                mysqli_query($conn,$mysql);
+        date_default_timezone_set("Africa/Cairo");
+        $today = date("Y-m-d H:i:s");
+        $connection->add("room","BuildingNo,FloorNo,RoomNo,Capacity,CreatedDateTime,LastUpdatedDateTime,IsDeleted","'$BuildingNo','$FloorNo','$RoomNo','$Capacity','$today','$today',0");
+        
         $conn->close();
         header("Location:AddRoom.php");
 
@@ -74,20 +61,14 @@ class Rooms
      
     public static function delete(Rooms $room)
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $BuildingNo=$room->BuildingNo;
+        $FloorNo=$room->FloorNo;
+      $RoomNo=$room->RoomNo;
+      $Capacity=$room->Capacity;
+        $connection = new DB();
+$conn = $connection->connect();
         $conn->query("SET NAMES 'utf8'");
-                $mysql="DELETE FROM room WHERE RoomNo='$room->RoomNo' AND BuildingNo='$room->BuildingNo'";
-                mysqli_query($conn,$mysql);
+        $connection->delete("room","RoomNo='$room->RoomNo' AND BuildingNo='$room->BuildingNo' AND IsDeleted=0");
         $conn->close();
         header("Location:DeleteRoom.php");
 
@@ -95,20 +76,17 @@ class Rooms
     }
     public static function update(Rooms $room)
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $BuildingNo=$room->BuildingNo;
+        $FloorNo=$room->FloorNo;
+      $RoomNo=$room->RoomNo;
+      $Capacity=$room->Capacity;
+        $connection = new DB();
+$conn = $connection->connect();
         $conn->query("SET NAMES 'utf8'");
-                $mysql="UPDATE room SET Capacity='$room->Capacity' WHERE RoomNo='$room->RoomNo' AND BuildingNo='$room->BuildingNo'";
-                mysqli_query($conn,$mysql);
+        date_default_timezone_set("Africa/Cairo");
+        $today = date("Y-m-d H:i:s");
+        $connection->update("room","Capacity='$Capacity'","RoomNo='$RoomNo' AND BuildingNo='$BuildingNo' AND IsDeleted=0");
+        
         $conn->close();
         header("Location:UpdateRoom.php");
 

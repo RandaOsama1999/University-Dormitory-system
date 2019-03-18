@@ -1,17 +1,10 @@
 <?php
-$servername = "localhost";
-$name = "root";
-$password = "";
-
-// Create connection
-$conn = new mysqli($servername, $name, $password);
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+include_once "classDatabase.php";
+$connection = new DB();
+$conn = $connection->connect();
 $conn->query("SET NAMES 'utf8'");
 
-$sql = "SELECT * FROM alazharuni.usertypelinks WHERE userType_ID =".$_POST['userTypeid'].""; 
+$sql = "SELECT * FROM usertypelinks WHERE userType_ID =".$_POST['userTypeid']." AND IsDeleted=0"; 
 
 
 $result = $conn->query($sql); 
@@ -20,7 +13,7 @@ $result = $conn->query($sql);
     if($row==true)
     {
         $links_ID=$row['links_ID'];
-        $sqlt = "SELECT * FROM alazharuni.links WHERE ID =".$links_ID.""; 
+        $sqlt = "SELECT * FROM links WHERE ID =".$links_ID." AND IsDeleted=0"; 
         $resultt = $conn->query($sqlt); 
 
         while($rowt = $resultt->fetch_assoc()){

@@ -1,11 +1,12 @@
 <?php
+include_once "classDatabase.php";
+
 
 class Link
 {
     public  $ID;
     public  $PhysicalAddress;
     public  $FriendlyAddress;
-    public  $HTMLText;
 
     public function __construct() {
        
@@ -87,19 +88,14 @@ class Link
     }*/
     public static function update(Link $link)
     {
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "alazharuni";
-
-        // Create connection
-        $conn = new mysqli($servername, $username, $password, $dbname);
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        } 
+        $id=$link->ID;
+        $FriendlyAddress=$link->FriendlyAddress;
+        $connection = new DB();
+        $conn = $connection->connect();
         $conn->query("SET NAMES 'utf8'");
-        $mysql="UPDATE links SET FriendlyAddress='$link->FriendlyAddress' WHERE ID='$link->ID'";
+        date_default_timezone_set("Africa/Cairo");
+        $today = date("Y-m-d H:i:s");
+        $connection->update("links","FriendlyAddress='$FriendlyAddress',LastUpdatedDateTime='$today'","ID=$id AND IsDeleted=0");
         mysqli_query($conn,$mysql);
         $conn->close();
         header("Location:UpdateLink.php");
