@@ -1,36 +1,70 @@
 <?php
-include_once "classUser.php";
+include_once "classUserModel.php";
 include_once "classDatabase.php";
-session_start();
-            
-$connection = new DB();
-$conn = $connection->connect();
-			$conn->query("SET NAMES 'utf8'");
+include_once "classFacade.php";
+include_once "classContent.php";
+require_once 'PHPMailer-master/src/PHPMailer.php';
+require_once 'PHPMailer-master/src/Exception.php';
+session_start();     
+$conn=DB::getInstance();
+$mysql=$conn->getConnection();
+$conn=mysqli_query($mysql,"SET NAMES 'utf8'");
             if(isset($_POST['login'])){
                 $email = $_POST['email'];
                 $sql = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0";
-                $result = $conn->query($sql);
+                $result = mysqli_query($mysql,$sql);
                 while($row = $result->fetch_assoc()){
                     if($row==true)
                     {
-                        $headers  = 'From: azhardormsadmission@gmail.com' . "\r\n" .
+                        $fname=$row['FirstName'];
+                        $famname=$row['FamilyName'];
+                        $name= $fname.' '.$famname;
+                        $pwrurl = "http://localhost/SE/page-resetpassword.php";
+                        
+                        $facade=new facade();
+                        $facade->sendmail($email,$pwrurl,$name);
+
+                       /* $mail = new PHPMailer\PHPMailer\PHPMailer();
+                        // Set PHPMailer to use the sendmail transport
+                        $mail->isSendmail();
+                        //Set who the message is to be sent from
+                        $mail->setFrom('azhardormsadmission@gmail.com', 'AlAzhar Admissions');
+                        //Set who the message is to be sent to
+                        $mail->addAddress($email, $name);
+                        //Set the subject line
+                        $mail->Subject = 'Password Reset';
+                        //Replace the plain text body with one created manually
+                        $mail->Body = "Dear ".$name.",\n\nIf this e-mail does not apply to you please ignore it. It appears that you have requested a password reset at our website\n\nTo reset your password, please click the link below. If you cannot click it, please paste it into your web browser's address bar.\n\n" . $pwrurl . "\n\nThanks,\nThe Administration";
+                        //Attach an image file
+                        $mail->addAttachment('UniLogoSmall.png');
+                        //send the message, check for errors
+                        $sent=$mail->send();
+                        if ($sent) {
+                            echo "<script> alert('Your password recovery key has been sent to your e-mail address.');</script>";
+                           
+                        } else {
+                            //echo "Message sent!";
+                            echo "Mailer Error: " . $mail->ErrorInfo;
+                        }
+                        
+                        /*$headers  = 'From: azhardormsadmission@gmail.com' . "\r\n" .
                                     'MIME-Version: 1.0' . "\r\n" .
                                     'Content-type: text/html; charset=utf-8';
 
                         $pwrurl = "http://localhost/SE/page-resetpassword.php";
 
-        $mailbody = "Dear user,\n\nIf this e-mail does not apply to you please ignore it. It appears that you have requested a password reset at our website\n\nTo reset your password, please click the link below. If you cannot click it, please paste it into your web browser's address bar.\n\n" . $pwrurl . "\n\nThanks,\nThe Administration";
-        mail($email, "Password Reset", $mailbody, $headers);
+                        $mailbody = "Dear user,\n\nIf this e-mail does not apply to you please ignore it. It appears that you have requested a password reset at our website\n\nTo reset your password, please click the link below. If you cannot click it, please paste it into your web browser's address bar.\n\n" . $pwrurl . "\n\nThanks,\nThe Administration";
+                        mail($email, "Password Reset", $mailbody, $headers);
 
-        echo "<script> alert('Your password recovery key has been sent to your e-mail address.');</script>";
+                        echo "<script> alert('Your password recovery key has been sent to your e-mail address.');</script>";*/
 
                         
                     }
                 }
-						}
+			}
 						
             
-            $conn->close();
+            //$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -82,7 +116,11 @@ $conn = $connection->connect();
                     <div>
 
                                     </div>
-                                    <button type="submit" name="login" class="btn btn-primary btn-flat m-b-30 m-t-30">ارسال</button>
+                                    <?php
+                                        $cont3=Content::Button(57,"login");
+                                    ?>
+                                    <button type="submit" name="login" class="btn btn-primary btn-flat m-b-30 m-t-30"><?php echo $cont3 ?></button>
+                                    
                                     <div class="register-link m-t-15 text-center">
                                         <p> ليس لديك حساب؟ <a href="page-register.php">انشئ حساب من هنا </a></p>
                                     </div>

@@ -1,10 +1,11 @@
 <?php
 include_once "classDatabase.php";
-$connection = new DB();
-$conn = $connection->connect();
+$conn=DB::getInstance();
+$mysql=$conn->getConnection();
+$conn=mysqli_query($mysql,"SET NAMES 'utf8'");
         $id2=array();
                     $sqltwo = "SELECT * FROM student WHERE State_ID=2";
-                    $resulttwo = $conn->query($sqltwo);
+                    $resulttwo =  mysqli_query($mysql,$sqltwo);
                     while($rowtwo = $resulttwo->fetch_assoc()){
                         if($rowtwo==true)
                         {
@@ -18,7 +19,7 @@ if(isset($_GET["term"])){
     
     $sql = "SELECT * FROM user WHERE Email LIKE ? AND ID=".$id2[$j]." AND IsDeleted=0";
     
-    if($stmt = mysqli_prepare($conn, $sql)){
+    if($stmt = mysqli_prepare($mysql, $sql)){
         // Bind variables to the prepared statement as parameters
         mysqli_stmt_bind_param($stmt, "s", $param_term);
         
@@ -49,5 +50,5 @@ if(isset($_GET["term"])){
 }
 } 
 // close connection
-mysqli_close($conn);
+mysqli_close($mysql);
 ?>

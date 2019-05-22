@@ -1,12 +1,12 @@
 <?php
 include_once "classDatabase.php";
-$connection = new DB();
-$conn = $connection->connect();
-$conn->query("SET NAMES 'utf8'");
+$conn=DB::getInstance();
+$mysql=$conn->getConnection();
+$conn=mysqli_query($mysql,"SET NAMES 'utf8'");
 $links_ID=array();
 $links_ID2=array();
 $sql = "SELECT * FROM usertypelinks WHERE userType_ID =".$_POST['userTypeid']." AND IsDeleted=0"; 
-$result = $conn->query($sql); 
+$result = mysqli_query($mysql,$sql);
 
    while($row = $result->fetch_assoc()){
         if($row==true)
@@ -15,7 +15,7 @@ $result = $conn->query($sql);
         }
     }
     $sqltw = "SELECT * FROM usertypelinks WHERE userType_ID !=".$_POST['userTypeid']." AND IsDeleted=0"; 
-    $resulttw = $conn->query($sqltw); 
+    $resulttw = mysqli_query($mysql,$sqltw);
 
         while($rowtw = $resulttw->fetch_assoc()){
             if($rowtw==true)
@@ -29,7 +29,7 @@ $result = $conn->query($sql);
             {
                 if($links_ID2[$i] != $links_ID[$j]){*/
                 $sqlt = "SELECT * FROM links WHERE ID =".$arr." AND IsDeleted=0"; 
-                $resultt = $conn->query($sqlt); 
+                $resultt = mysqli_query($mysql,$sqlt); 
                 
                     while($rowt = $resultt->fetch_assoc()){
                         if($rowt==true)

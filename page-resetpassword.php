@@ -1,21 +1,23 @@
 <?php
-include_once "classUser.php";
+include_once "classUserModel.php";
 include_once "classDatabase.php";
+include_once "classContent.php";
+
 session_start();
             
-$connection = new DB();
-$conn = $connection->connect();
+$conn=DB::getInstance();
+$mysql=$conn->getConnection();
+$conn=mysqli_query($mysql,"SET NAMES 'utf8'");
 date_default_timezone_set("Africa/Cairo");
         $today = date("Y-m-d H:i:s");
-			$conn->query("SET NAMES 'utf8'");
             if(isset($_POST['change'])){
                 $email = $_POST['email'];
                         $obj = new Users();
                         $passhash=$_POST['Pass1'];
                         $obj->Password=md5($passhash);
                         $pass=$obj->Password;
-                        $connection->update("user","Password='$pass',LastUpdatedDateTime='$today'","Email='$email' AND IsDeleted=0");
-                        $conn->close();
+                        DB::update("user","Password='$pass',LastUpdatedDateTime='$today'","Email='$email' AND IsDeleted=0");
+                       // $conn->close();
                         header("Location:page-login.php");
 
                         //$_SESSION['email'] = $email;
@@ -23,7 +25,7 @@ date_default_timezone_set("Africa/Cairo");
 						}
 						
             
-            $conn->close();
+            //$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -83,7 +85,10 @@ date_default_timezone_set("Africa/Cairo");
                     <div>
 
                                     </div>
-                                    <button type="submit" name="change" class="btn btn-primary btn-flat m-b-30 m-t-30">تغيير</button>
+                                    <?php                                        
+                                        $cont3=Content::Button(60,"change");
+                                    ?>
+                                    <button type="submit" name="change" class="btn btn-primary btn-flat m-b-30 m-t-30"><?php echo $cont3 ?></button>
                                     <div class="register-link m-t-15 text-center">
                                         <p> ليس لديك حساب؟ <a href="page-register.php">انشئ حساب من هنا </a></p>
                                     </div>

@@ -1,13 +1,13 @@
 <?php
 include_once "classDatabase.php";
-$connection = new DB();
-$conn = $connection->connect();
-$conn->query("SET NAMES 'utf8'");
+$conn=DB::getInstance();
+$mysql=$conn->getConnection();
+$conn=mysqli_query($mysql,"SET NAMES 'utf8'");
 
 $sql = "SELECT * FROM address WHERE Parent_ID =".$_POST['country_id'].""; 
 
 
-$result = $conn->query($sql); 
+$result = mysqli_query($mysql,$sql);
 
    while($row = $result->fetch_assoc()){
     if($row==true)

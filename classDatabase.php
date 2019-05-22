@@ -2,58 +2,81 @@
 
 class DB
 {
+    public $host;
+    public $user ;
+    public $pass ;
+    public $dbname;
+    public $myconn;
+    public static $instance;
 
-    var $host = 'localhost';
-    var $user = 'root';
-    var $pass = '';
-    var $db = 'alazharuni';
-    var $myconn;
-
-    function connect() {
-        $con = mysqli_connect($this->host, $this->user, $this->pass, $this->db);
-        if (!$con) {
-            die('Could not connect to database!');
-        } else {
-            $this->myconn = $con;}
-        return $this->myconn;
+    public function __construct($hostname,$username,$password,$databasename)
+    {
+      $this->host=$hostname;
+      $this->user=$username;
+      $this->pass=$password;
+      $this->dbname=$databasename;
+      if(self::$instance==null)
+         {
+              self::$instance=$this;
+              $this->myconn=new mysqli($this->host,$this->user,$this->pass,$this->dbname) or die("no connection");
+         }
+      
     }
-    function addwithid($table,$tabledata,$Values){
+    
+    public static function getInstance(){
+        if(self::$instance==null){
+            $db=new DB("localhost","root","","alazharuni");
+            //echo "Object is created <br>";
+            self::$instance=$db;
+        }
+        return self::$instance;
+    }
+
+    public function getConnection() {
+		return $this->myconn;
+	}
+    
+    public static function addwithid($table,$tabledata,$Values){
         
         $sql="INSERT INTO $table ($tabledata) VALUES($Values)";
-        $connection = new DB();
-        $conn = $connection->connect();
-        $conn->query("SET NAMES 'utf8'");
-        $result=$conn->query($sql);
-        $last_id = mysqli_insert_id($conn);
+       // $connection = new DB();
+       $conn=DB::getInstance();
+       $mysql=$conn->getConnection();
+       $conn=mysqli_query($mysql,"SET NAMES 'utf8'");
+       $result=mysqli_query($mysql,$sql);
+        $last_id = mysqli_insert_id($mysql);
         return $last_id;
     }
-    function add($table,$tabledata,$Values){
+    public static function add($table,$tabledata,$Values){
         
         $sql="INSERT INTO $table ($tabledata) VALUES($Values)";
-        $connection = new DB();
-        $conn = $connection->connect();
-        $conn->query("SET NAMES 'utf8'");
-        $result=$conn->query($sql);
+       // $connection = new DB();
+       $conn=DB::getInstance();
+        $mysql=$conn->getConnection();
+        $conn=mysqli_query($mysql,"SET NAMES 'utf8'");
+        $result=mysqli_query($mysql,$sql);
 
     }
-    function delete($table, $Where){
+    public static function delete($table, $Where){
         date_default_timezone_set("Africa/Cairo");
         $today = date("Y-m-d H:i:s");
         $sql="UPDATE $table SET LastUpdatedDateTime='$today', IsDeleted = 1 WHERE ".$Where;
-        $connection = new DB();
-        $conn = $connection->connect();
-        $result=$conn->query($sql);
-
+       // $connection = new DB();
+       $conn=DB::getInstance();
+       $mysql=$conn->getConnection();
+       $conn=mysqli_query($mysql,"SET NAMES 'utf8'");
+        $result=mysqli_query($mysql,$sql);
     }
-    function update($table,$set,$Where){
+    public  static function update($table,$set,$Where){
         
         $sql="UPDATE $table SET $set WHERE ".$Where;
-        $connection = new DB();
-        $conn = $connection->connect();
-        $conn->query("SET NAMES 'utf8'");
-        $result=$conn->query($sql);
-
+       // $connection = new DB();
+       $conn=DB::getInstance();
+        $mysql=$conn->getConnection();
+        $conn=mysqli_query($mysql,"SET NAMES 'utf8'");
+       $result=mysqli_query($mysql,$sql);
     }
+
 
 }
 ?>

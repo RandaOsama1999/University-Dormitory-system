@@ -1,14 +1,14 @@
 <?php
 include_once "classDatabase.php";
-$connection = new DB();
-$conn = $connection->connect();
-$conn->query("SET NAMES 'utf8'");
+$conn=DB::getInstance();
+$mysql=$conn->getConnection();
+$conn=mysqli_query($mysql,"SET NAMES 'utf8'");
 
 
 $sql = "SELECT * FROM room WHERE BuildingNo =".$_POST['BuildingNo']." AND FloorNo =".$_POST['FloorNo']." AND IsDeleted=0"; 
 
 
-$result = $conn->query($sql); 
+$result = mysqli_query($mysql,$sql);
 
    while($row = $result->fetch_assoc()){
     if($row==true)

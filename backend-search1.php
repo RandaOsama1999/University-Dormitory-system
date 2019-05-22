@@ -1,12 +1,13 @@
 <?php
 include_once "classDatabase.php";
-$connection = new DB();
-$conn = $connection->connect();
+$conn=DB::getInstance();
+$mysql=$conn->getConnection();
+$conn=mysqli_query($mysql,"SET NAMES 'utf8'");
 if(isset($_GET["term"])){
     
     $sql = "SELECT Email FROM user WHERE Email LIKE ? AND IsDeleted=0 AND usertype_ID=1";
     
-    if($stmt = mysqli_prepare($conn, $sql)){
+    if($stmt = mysqli_prepare($mysql, $sql)){
         // Bind variables to the prepared statement as parameters
         mysqli_stmt_bind_param($stmt, "s", $param_term);
         
@@ -36,5 +37,5 @@ if(isset($_GET["term"])){
 }
  
 // close connection
-mysqli_close($conn);
+mysqli_close($mysql);
 ?>

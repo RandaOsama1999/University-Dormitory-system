@@ -11,12 +11,12 @@ if (isset($_GET['Logout'])) {
     unset($_SESSION['email']);
     header("location: page-login.php");
 }
-$connection = new DB();
-$conn = $connection->connect();
-    $conn->query("SET NAMES 'utf8'");
+$conn=DB::getInstance();
+$mysql=$conn->getConnection();
+$conn=mysqli_query($mysql,"SET NAMES 'utf8'");
 $email = $_SESSION['email']; 
 $sql4 = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0 ";    
-            $resultQuery4 = $conn->query($sql4);
+            $resultQuery4 = mysqli_query($mysql,$sql4);
             while($row4= $resultQuery4->fetch_assoc())
             {
                 if($row4==true)
@@ -26,7 +26,7 @@ $sql4 = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0 ";
             }
             $sql5 = "SELECT * FROM student WHERE Student_ID='$IDTEST' ";    
              
-            $resultQuery5 = $conn->query($sql5);
+            $resultQuery5 =  mysqli_query($mysql,$sql5);
             while($row5= $resultQuery5->fetch_assoc())
             {
                 if($row5==true)
@@ -43,186 +43,64 @@ $sql4 = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0 ";
 
 
             }
+            /*$sql8 = "SELECT * FROM paymentmethodoptionsvalue WHERE IsDeleted=0 ";    
+             
+            $resultQuery8 = $conn->query($sql8);
+            while($row8= $resultQuery8->fetch_assoc())
+            {
+                if($row8==true)
+                {
+                    $Reservation_ID=$row8["Reservation_ID"];
+                    $sqlQ="select * from reservation where ID=$Reservation_ID";
+                    $resultQ3 = mysqli_query($conn,$sqlQ) or die(mysql_error());
+                    while($rowQ2= $resultQ3->fetch_assoc())
+                    {
+                        if($rowQ2==true)
+                        {
+                            $stdid=$rowQ2['Student_ID'];
+                                if($stdid==$IDTEST)
+                                {
+                                        header("location:AllPages.php");
+                                    
+                                } 
+                        }
+                    }
+                    
+                } 
+               
+            }*/
+            
+            $checkarr=$_SESSION['checkarr'];
+            /*for($i=0;$i<count($checkarr);$i++)
+            {
+                echo "<script> alert('".$checkarr[$i]."');</script>";  
+            }*/
             if(isset($_POST['Submit']))
             {
-                //header("Location:AllPages.php");
+                /*$conn=DB::getInstance();
+                $mysql=$conn->getConnection();
+                $conn=mysqli_query($mysql,"SET NAMES 'utf8'");*/
+                $arr=$_SESSION['arr'];
+                $arr2=$_SESSION['arr2'];
+                $reservID=$_SESSION['reservID'];
+                //$val=$_SESSION['val'];
                 date_default_timezone_set("Africa/Cairo");
                 $today = date("Y-m-d H:i:s");
-                for ($i = 0; $i < sizeof($arr); $i++) {
+                for ($i = 0; $i < count($arr); $i++) {  
                   $val=$_POST[$arr[$i]];
-                    //echo $val;
-                    $connection->add("paymentmethodoptionsvalue","PaymethodOptions_ID,Value,Reservation_ID,CreatedDateTime,LastUpdatedDateTime,IsDeleted","$arr2[$i],$val,1,'$today','$today',0");
+                  //echo "<script> alert('".$reservID."');</script>";  
+                    DB::add("paymentmethodoptionsvalue","PaymethodOptions_ID,Value,Reservation_ID,CreatedDateTime,LastUpdatedDateTime,IsDeleted","$arr2[$i],'$val',$reservID,'$today','$today',0");
+                   
 
                 }
+                //$conn->close();
+                header("location:AllPages.php");
             }
+            
 
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <?php include_once "header.php";?>
 
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <!-- Tell the browser to be responsive to screen width -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon.png">
-    <title>Ela - Bootstrap Admin Dashboard Template</title>
-    <!-- Bootstrap Core CSS -->
-    <link href="css/lib/bootstrap/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-
-    <link href="css/lib/calendar2/semantic.ui.min.css" rel="stylesheet">
-    <link href="css/lib/calendar2/pignose.calendar.min.css" rel="stylesheet">
-    <link href="css/lib/owl.carousel.min.css" rel="stylesheet" />
-    <link href="css/lib/owl.theme.default.min.css" rel="stylesheet" />
-    <link href="css/helper.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:** -->
-    <!--[if lt IE 9]>
-    <script src="https:**oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https:**oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-<![endif]-->
-<style>
-    li button {
-    display: block;
-    color: black;
-    padding: 8px 16px;
-    text-decoration: none;
-    background-color: #f1f1f1;
-    border: none;
-    padding: 12px 28px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    cursor: pointer;
-}
-
-li button:hover{
-    background-color: white;
-    color: black;
-    text-decoration: none;
-}
-
-li button.active {
-    background-color: white;
-    color: black;
-}
-    </style>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.2/jquery-ui.min.js"></script>‌​
-
-</head>
-
-<body class="fix-header fix-sidebar">
-    <!-- Preloader - style you can find in spinners.css -->
-    <div class="preloader">
-        <svg class="circular" viewBox="25 25 50 50">
-			<circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10" /> </svg>
-    </div>
-    <!-- Main wrapper  -->
-    <div id="main-wrapper">
-        <!-- header header  -->
-        <div class="header">
-            <nav class="navbar top-navbar navbar-expand-md navbar-light">
-                <!-- Logo -->
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="index.html">
-                        <!-- Logo icon -->
-                        <b><img src="UniLogoSmall.png" alt="homepage" class="dark-logo" /></b>
-                        
-                        <!--End Logo icon -->
-                        <!-- Logo text -->
-                        <!--<span><img src="images/logo-text.png" alt="homepage" class="dark-logo" /></span>-->
-                    </a>
-                </div>
-                <!-- End Logo -->
-                        <!-- Profile -->
-                        <li class="nav-item dropdown" style="margin-left: 70%">
-                            <a class="nav-link dropdown-toggle text-muted  " href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img src="facebook-avatar.jpg" alt="user" class="profile-pic" /></a>
-                            <div class="dropdown-menu dropdown-menu-right animated zoomIn">
-                            <form  method="get" >
-                                <ul class="dropdown-user">
-                                    <!--<li><a href="#"><i class="ti-user"></i> تعديل بياناتك</a></li>-->
-                                    <li><button class="active" name="Logout"><i class="fa fa-power-off"></i> تسجيل الخروج</button></li>
-                                </ul>
-                </form>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </div>
-        <!-- End header header -->
-        <!-- Left Sidebar  -->
-        <div class="left-sidebar">
-            <!-- Sidebar scroll-->
-            <div class="scroll-sidebar">
-                <!-- Sidebar navigation-->
-                <nav class="sidebar-nav">
-                    <ul id="sidebarnav">
-                        <li class="nav-devider"></li>
-                        <li class="nav-label" style="font-size:150%; text-align:center; color: rgba(45, 65, 21);">مسئولياتك</li>
-                        
-                                <?php
-                                            
-                                            $connection = new DB();
-                                            $conn = $connection->connect();
-                                    $conn->query("SET NAMES 'utf8'");
-
-                                    $email = $_SESSION['email']; 
-                                    $sql = "SELECT * FROM user WHERE Email='$email' AND IsDeleted=0";
-                                    $result = $conn->query($sql);
-                                        while($row = $result->fetch_assoc()){
-                                            if($row==true)
-                                            {
-                                                $Name=$row["FirstName"];
-                                                $FName=$row["FamilyName"];
-                                                $usertype_ID=$row['usertype_ID'];
-                                                $sqltwo = "SELECT * FROM usertypelinks WHERE userType_ID='$usertype_ID' AND IsDeleted=0";
-                                                $resulttwo = $conn->query($sqltwo);
-                                                    while($rowtwo = $resulttwo->fetch_assoc()){
-                                                        if($rowtwo==true)
-                                                        {
-                                                            $links_ID=$rowtwo['links_ID'];
-                                                            $sqlt = "SELECT * FROM links WHERE ID='$links_ID' AND IsDeleted=0";
-                                                            $resultt = $conn->query($sqlt);
-                                                                while($rowt = $resultt->fetch_assoc()){
-                                                                    if($rowt==true)
-                                                                    {
-                                                                        $PhysicalAddress=$rowt['PhysicalAddress'];
-                                                                        $FriendlyAddress=$rowt['FriendlyAddress'];
-                                                                        echo '<li><a style="font-size:120%; text-align:center" href='.$PhysicalAddress.'>'.$FriendlyAddress.' </a></li>';
-                                                                    }
-                                                                }
-                                                            
-                                                        }
-                                                    }
-                                                
-                                            }
-                                        }
-                                    
-                                    $conn->close();
-                                ?>
-                        </li>
-                    </ul>
-                </nav>
-                <!-- End Sidebar navigation -->
-            </div>
-            <!-- End Sidebar scroll-->
-        </div>
-        <!-- End Left Sidebar  -->
-        <!-- Page wrapper  -->
-        <div class="page-wrapper">
-            <!-- Container fluid  -->
-            <div class="container-fluid">
                 <!-- Start Page Content -->
                 <br>
                                 <h2 style='text-align:center; color: rgba(45, 65, 21)'> دفع مصاريف الغرفة</h2>
@@ -235,11 +113,11 @@ li button.active {
                                     <option value=0>اختر طريقة الدفع</option>
                     <?php
                          
-                         $connection = new DB();
-                         $conn = $connection->connect();
-                            $conn->query("SET NAMES 'utf8'");
+                         $conn=DB::getInstance();
+                        $mysql=$conn->getConnection();
+                        $conn=mysqli_query($mysql,"SET NAMES 'utf8'");
                             $query="SELECT * FROM paymentmethod WHERE IsDeleted=0";
-                            $resultQuery = $conn->query($query);
+                            $resultQuery = mysqli_query($mysql,$query);
                             while($rowq = $resultQuery->fetch_assoc()){
                                 if($rowq==true)
                                 {
@@ -251,7 +129,7 @@ li button.active {
                             }
 
                         
-                        $conn->close();
+                        //$conn->close();
                     ?>
                 </select>
                                     </div>
@@ -280,56 +158,4 @@ li button.active {
 </div>
 </form>
                     </div>	
-
-                   <!-- </div>	-->		
-
-                <!-- End PAge Content -->
-            </div>
-            <!-- End Container fluid  -->
-            <!-- footer -->
-            <footer class="footer"> © <?php echo date("Y"); ?> All rights reserved. Template designed by <a href="https://colorlib.com">Colorlib</a></footer>
-            <!-- End footer -->
-        </div>
-        <!-- End Page wrapper  -->
-    </div>
-    <!-- End Wrapper -->
-    <!-- All Jquery -->
-    <script src="js/lib/jquery/jquery.min.js"></script>
-    <!-- Bootstrap tether Core JavaScript -->
-    <script src="js/lib/bootstrap/js/popper.min.js"></script>
-    <script src="js/lib/bootstrap/js/bootstrap.min.js"></script>
-    <!-- slimscrollbar scrollbar JavaScript -->
-    <script src="js/jquery.slimscroll.js"></script>
-    <!--Menu sidebar -->
-    <script src="js/sidebarmenu.js"></script>
-    <!--stickey kit -->
-    <script src="js/lib/sticky-kit-master/dist/sticky-kit.min.js"></script>
-    <!--Custom JavaScript -->
-
-
-    <!-- Amchart -->
-     <script src="js/lib/morris-chart/raphael-min.js"></script>
-    <script src="js/lib/morris-chart/morris.js"></script>
-    <script src="js/lib/morris-chart/dashboard1-init.js"></script>
-
-
-	<script src="js/lib/calendar-2/moment.latest.min.js"></script>
-    <!-- scripit init-->
-    <script src="js/lib/calendar-2/semantic.ui.min.js"></script>
-    <!-- scripit init-->
-    <script src="js/lib/calendar-2/prism.min.js"></script>
-    <!-- scripit init-->
-    <script src="js/lib/calendar-2/pignose.calendar.min.js"></script>
-    <!-- scripit init-->
-    <script src="js/lib/calendar-2/pignose.init.js"></script>
-
-    <script src="js/lib/owl-carousel/owl.carousel.min.js"></script>
-    <script src="js/lib/owl-carousel/owl.carousel-init.js"></script>
-    <script src="js/scripts.js"></script>
-    <!-- scripit init-->
-
-    <script src="js/custom.min.js"></script>
-
-</body>
-
-</html>
+                   <?php include_once "footer.php";?>

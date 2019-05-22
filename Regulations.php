@@ -1,5 +1,5 @@
 <?php
-include_once "classUser.php";
+include_once "classUserModel.php";
 include_once "classDatabase.php";
 
 ?>
@@ -46,11 +46,12 @@ include_once "classDatabase.php";
                         <div class="login-content card">
                         <?php
                 $phppagename= basename($_SERVER['PHP_SELF']);
-    $connection = new DB();
-    $conn = $connection->connect();
-        $conn->query("SET NAMES 'utf8'");
+                $conn=DB::getInstance();
+                $mysql=$conn->getConnection();
+                $conn=mysqli_query($mysql,"SET NAMES 'utf8'");
     $sqlone = "SELECT * FROM statichtml WHERE pagename='$phppagename'";
-    $resultone = $conn->query($sqlone);
+    $resultone = mysqli_query($mysql,$sqlone);
+
 
        while($rowT= $resultone->fetch_assoc())
             {  

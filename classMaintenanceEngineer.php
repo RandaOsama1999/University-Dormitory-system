@@ -1,6 +1,6 @@
 <?php
 include_once "classDatabase.php";
-include_once "classUser.php";
+include_once "classUserModel.php";
 class ME
 {
 
@@ -14,9 +14,6 @@ class ME
 
     public static function addME(ME $ME,Users $user)
     {
-        $connection = new DB();
-        $conn = $connection->connect();
-        $conn->query("SET NAMES 'utf8'");
         $FirstName=$user->FirstName;
         $MiddleName=$user->MiddleName;
         $FamilyName=$user->FamilyName;
@@ -32,11 +29,31 @@ class ME
         $usertype_ID=14;
         date_default_timezone_set("Africa/Cairo");
         $today = date("Y-m-d H:i:s");
-        $last_id=$connection->addwithid("user","FirstName,MiddleName,FamilyName,DateOfBirth,Mobile,Home,NationalID,Address_ID,Email,Password,usertype_ID,CreatedDateTime,LastUpdatedDateTime,IsDeleted","'$FirstName','$MiddleName','$FamilyName','$DateOfBirth','$Mobile','$Home','$national_ID','$Address','$Email','$Password','$usertype_ID','$today','$today',0");
-        $connection->add("maintenanceengineer","User_ID,MaintenanceType_ID","$last_id,'$MaintenanceType_ID'");
-        $conn->close();
-        header("Location:AddUser.php");
+        $last_id=DB::addwithid("user","FirstName,MiddleName,FamilyName,DateOfBirth,Mobile,Home,NationalID,Address_ID,Email,Password,usertype_ID,CreatedDateTime,LastUpdatedDateTime,IsDeleted","'$FirstName','$MiddleName','$FamilyName','$DateOfBirth','$Mobile','$Home','$national_ID','$Address','$Email','$Password','$usertype_ID','$today','$today',0");
+        DB::add("maintenanceengineer","User_ID,MaintenanceType_ID","$last_id,'$MaintenanceType_ID'");
+        //$conn->close();
+        //header("Location:AddUser.php");
 
+    }
+    public static function ViewDropdown()
+    {
+        $conn=DB::getInstance();
+        $mysql=$conn->getConnection();
+        $conn=mysqli_query($mysql,"SET NAMES 'utf8'");
+        $sql = "SELECT * FROM maintenancetype";
+		$DataSet = mysqli_query($mysql,$sql) or die(mysql_error());
+		$i=0;
+		$Result;
+		while ($row = mysqli_fetch_array($DataSet))
+		{
+            $MyObject= new ME();
+            $MyObject->ID=$row["ID"];
+            $MyObject->MaintenanceType_ID=$row["Type"];
+			$Result[$i]=$MyObject;
+			$i++;
+		}
+		return $Result;
+        //$conn->close();
     }
     /*public static function deleteME(Users $user)
     {
